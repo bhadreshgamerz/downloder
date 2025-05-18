@@ -1,26 +1,30 @@
-# Use Node.js base image
-FROM node:18
+FROM node:18-slim
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Install dependencies: Python, pip, ffmpeg, yt-dlp
 RUN apt-get update && \
-    apt-get install -y python3 python3-pip ffmpeg && \
-    pip3 install --upgrade yt-dlp && \
-    apt-get clean
+    apt-get install -y --no-install-recommends \
+    python3 \
+    python3-pip \
+    ffmpeg \
+    curl \
+    && pip3 install --no-cache-dir --upgrade yt-dlp \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy project files
+# Copy files to container
 COPY . .
 
 # Install Node.js dependencies
 RUN npm install
 
-# Set environment port for Railway
+# Environment variable
 ENV PORT=3000
 
-# Expose the port (important for Railway)
+# Expose port for Railway
 EXPOSE 3000
 
-# Start the bot
+# Start your bot
 CMD ["node", "bot.js"]
