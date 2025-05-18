@@ -1,30 +1,33 @@
-FROM node:18-slim
+FROM debian:bullseye-slim
+
+# Install node, python3, ffmpeg, and yt-dlp
+RUN apt-get update && \
+    apt-get install -y \
+    curl \
+    gnupg \
+    python3 \
+    python3-pip \
+    ffmpeg && \
+    pip3 install --upgrade yt-dlp && \
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
 
-# Install dependencies: Python, pip, ffmpeg, yt-dlp
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    python3 \
-    python3-pip \
-    ffmpeg \
-    curl \
-    && pip3 install --no-cache-dir --upgrade yt-dlp \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy files to container
+# Copy files
 COPY . .
 
-# Install Node.js dependencies
+# Install Node dependencies
 RUN npm install
 
-# Environment variable
+# Set environment port
 ENV PORT=3000
 
-# Expose port for Railway
+# Expose port
 EXPOSE 3000
 
-# Start your bot
+# Start the app
 CMD ["node", "bot.js"]
