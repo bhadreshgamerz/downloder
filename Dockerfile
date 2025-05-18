@@ -1,33 +1,27 @@
-FROM debian:bullseye-slim
-
-# Install node, python3, ffmpeg, and yt-dlp
-RUN apt-get update && \
-    apt-get install -y \
-    curl \
-    gnupg \
-    python3 \
-    python3-pip \
-    ffmpeg && \
-    pip3 install --upgrade yt-dlp && \
-    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Use official Node.js LTS image with Debian base
+FROM node:18-bullseye
 
 # Set working directory
 WORKDIR /app
 
-# Copy files
-COPY . .
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y python3 python3-pip ffmpeg curl && \
+    pip3 install --upgrade yt-dlp && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install Node dependencies
+# Copy package files
+COPY package*.json ./
+
+# Install Node.js dependencies
 RUN npm install
 
-# Set environment port
-ENV PORT=3000
+# Copy rest of the bot files
+COPY . .
 
-# Expose port
+# Expose port for web server (Express)
 EXPOSE 3000
 
-# Start the app
-CMD ["node", "bot.js"]
+# Start the bot
+CMD ["node", "index.js"]
