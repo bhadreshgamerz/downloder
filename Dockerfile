@@ -1,4 +1,4 @@
-# Use official Node.js LTS image with Debian base
+# Use a stable Node.js base image
 FROM node:18-bullseye
 
 # Set working directory
@@ -11,17 +11,17 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy package files
+# Copy package.json files
 COPY package*.json ./
 
 # Install Node.js dependencies
 RUN npm install
 
-# Copy rest of the bot files
+# Copy bot code
 COPY . .
 
-# Expose port for web server (Express)
+# Expose port for Express (Replit-style keepalive server)
 EXPOSE 3000
 
-# Start the bot
+# Run the bot
 CMD ["node", "index.js"]
